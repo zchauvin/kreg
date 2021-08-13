@@ -1,20 +1,30 @@
 import { scrapeSpots } from "./spotery.js";
-import { geocode, geodistance } from "./utils.js";
+import { geocode, geodistance, sendTextMessage } from "./utils.js";
 import { SPOT_TO_ADDRESS_LOCATION_PAIR } from "./constants.js";
 import Distance from "geo-distance";
 import _ from "lodash";
 import moment from "moment";
+import dotenv from "dotenv";
+import User from "./models/User.js";
 
 const formattedTime = (time) => {
   return moment(time, "LT");
 };
 
-export const main = async (date, homeAddress, fromTime, toTime) => {
-  const homeLocation = await geocode(homeAddress);
-  const fromTimeFormatted = fromTime > 4 && formattedTime(fromTime);
+const date = "08/18/2021";
+
+const scrapeForUser = async (user) => {
+  const fromTime = null;
+  const toTime = null;
+
+  const homeLocation = await geocode(user.address);
+  const fromTimeFormatted = fromTime && formattedTime(fromTime);
   const toTimeFormatted = toTime && formattedTime(toTime);
 
   const spots = await scrapeSpots(date);
+
+  console.log("Scraped spots");
+  console.log(spots);
 
   for (var spot of spots) {
     _.remove(
@@ -24,6 +34,9 @@ export const main = async (date, homeAddress, fromTime, toTime) => {
         (toTimeFormatted && formattedTime(time) > toTimeFormatted)
     );
   }
+
+  console.log("Correct time spots");
+  console.log(spots);
 
   const qualifiedSpots = spots.filter(([spot, times]) => {
     const location = SPOT_TO_ADDRESS_LOCATION_PAIR[spot][1];
@@ -41,6 +54,25 @@ export const main = async (date, homeAddress, fromTime, toTime) => {
   });
 
   console.log(qualifiedSpots);
+
+  if (qualifiedSpots.length > 0) {
+    await sendTextMessage(
+      qualifiedSpots[0],
+      date,
+      user.firstName,
+      user.phoneNumber
+    );
+  }
+};
+
+export const main = async () => {
+  dotenv.config();
+
+  const users = await User.all();
+
+  users.forEach(async (u) => {
+    await scrapeForUser(u);
+  });
 };
 
 export const scrapeSpotery = async (message, _context) => {
