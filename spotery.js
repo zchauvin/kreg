@@ -44,6 +44,7 @@ const _url = (date) =>
   `${BASE_URL}/search?psAddrCity=San%20Francisco&psReservationDateStr=${date}&psIsGridView=false`;
 
 const scrapeSpots = async (date, headless = true) => {
+  console.log("browser start");
   const browser = await puppeteer.launch({ headless });
   const page = await browser.newPage();
   await page.goto(_url(date));
@@ -62,13 +63,12 @@ const scrapeSpots = async (date, headless = true) => {
     if (pageIdx == PAGE_COUNT) break;
 
     await Promise.all([
-      page.waitForSelector(
-        spotTitleSelector(pageIdx * MAX_SPOTS_PER_PAGE)
-      ),
+      page.waitForSelector(spotTitleSelector(pageIdx * MAX_SPOTS_PER_PAGE)),
       page.click(escapeColons("#pt1:lNext")),
     ]);
   }
 
+  console.log("browser close");
   await browser.close();
 
   return results;

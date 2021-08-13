@@ -23,9 +23,6 @@ const scrapeForUser = async (user) => {
 
   const spots = await scrapeSpots(date);
 
-  console.log("Scraped spots");
-  console.log(spots);
-
   for (var spot of spots) {
     _.remove(
       spot[1],
@@ -34,9 +31,6 @@ const scrapeForUser = async (user) => {
         (toTimeFormatted && formattedTime(time) > toTimeFormatted)
     );
   }
-
-  console.log("Correct time spots");
-  console.log(spots);
 
   const qualifiedSpots = spots.filter(([spot, times]) => {
     const location = SPOT_TO_ADDRESS_LOCATION_PAIR[spot][1];
@@ -52,8 +46,6 @@ const scrapeForUser = async (user) => {
     const l2 = SPOT_TO_ADDRESS_LOCATION_PAIR[s2[0]][1];
     return geodistance(homeLocation, l1) - geodistance(homeLocation, l2);
   });
-
-  console.log(qualifiedSpots);
 
   if (qualifiedSpots.length > 0) {
     await sendTextMessage(
@@ -71,18 +63,31 @@ export const main = async () => {
   const users = await User.all();
 
   users.forEach(async (u) => {
+    if (u.firstName != "Zack") return;
+
     await scrapeForUser(u);
   });
 };
 
-export const scrapeSpotery = async (message, _context) => {
-  const args = JSON.parse(Buffer.from(message.data, "base64").toString());
-  console.log(`consumed: ${JSON.stringify(args)}`);
+export const scrapeSpotery = async (_message, _context) => {
+  // const args = JSON.parse(Buffer.from(message.data, "base64").toString());
+  console.log("function start");
 
-  try {
-    await main(...Object.values(args));
-    console.log("Successfully ran main.");
-  } catch (e) {
-    console.log("Failure running main: ", e);
+  function run() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await main();
+      } catch (e) {
+        return reject(e);
+      }
+    });
   }
+
+  run()
+    .then(() => {
+      console.log("Successfully ran main.");
+    })
+    .catch(() => {
+      console.log("Failure running main: ", e);
+    });
 };
