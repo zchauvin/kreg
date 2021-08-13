@@ -6,6 +6,6 @@
 
 // "Usage: node index.js <date(MM/DD/YYYY)> <address> <fromTime?(H:MM AM)> <toTime?(H:MM AM)>"
 
-import { main } from "../index.js";
+import { scrapeSpotery } from "../index.js";
 
-await main();
+await scrapeSpotery();
