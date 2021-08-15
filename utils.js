@@ -38,12 +38,10 @@ export const listToString = (elements) => {
   return transformedElements.join(" ");
 };
 
-export const sendTextMessage = async (spot, date, name, phoneNumber) => {
-  const message = `Hey ${name}, Kreg here! Want to book ${
-    spot[0]
-  } on ${date} at ${listToString(spot[1])}? If so, head to: ${spot[2]}`;
-
+export const sendTextMessage = async (phoneNumber, message) => {
   console.log(message);
+
+  if (process.env.NODE_ENV === "development") return;
 
   const client = twilio(
     process.env.TWILIO_ACCOUNT_SID,

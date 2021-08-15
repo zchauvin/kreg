@@ -1,93 +1,90 @@
-import { scrapeSpots } from "./spotery.js";
+import { scrapeSpots, bookingUrl } from "./spotery.js";
 import { geocode, geodistance, sendTextMessage } from "./utils.js";
-import { SPOT_TO_ADDRESS_LOCATION_PAIR } from "./constants.js";
+import { SPOTS, EXAMPLE_SPOTS } from "./constants.js";
 import Distance from "geo-distance";
 import _ from "lodash";
 import moment from "moment";
 import dotenv from "dotenv";
 import User from "./models/User.js";
 
-const formattedTime = (time) => {
-  return moment(time, "LT");
+const ADVANCE_BOOKING_DAYS = 7;
+
+const parseTime = (time) => moment(time, "LT");
+
+const formattedDate = (date) => moment(date, "L").format("ddd, MMM D");
+const formattedTime = (time) => moment(time, "LT").format("h:mm a");
+
+const availableReservations = async () => {
+  let reservations = await Promise.all(
+    [...Array(ADVANCE_BOOKING_DAYS).keys()].map(
+      async (dayDelta) =>
+        await scrapeSpots(moment().add(dayDelta, "days").format("L"))
+    )
+  );
+
+  return _.flatten(reservations);
 };
 
-const date = "08/18/2021";
-
-const scrapeForUser = async (user) => {
-  const fromTime = null;
-  const toTime = null;
-
+const reservationForUser = async (reservations, user) => {
   const homeLocation = await geocode(user.address);
-  const fromTimeFormatted = fromTime && formattedTime(fromTime);
-  const toTimeFormatted = toTime && formattedTime(toTime);
 
-  const spots = await scrapeSpots(date);
-
-  for (var spot of spots) {
-    _.remove(
-      spot[1],
-      (time) =>
-        (fromTimeFormatted && formattedTime(time) < fromTimeFormatted) ||
-        (toTimeFormatted && formattedTime(time) > toTimeFormatted)
-    );
-  }
-
-  const qualifiedSpots = spots.filter(([spot, times]) => {
-    const location = SPOT_TO_ADDRESS_LOCATION_PAIR[spot][1];
+  const qualifiedReservations = reservations.filter(({ name, date, time }) => {
+    const { location } = SPOTS[name];
 
     if (geodistance(homeLocation, location) > Distance("2 miles")) return false;
-    if (times.length == 0) return false;
+
+    const dayOfWeek = moment(date, "L").format("ddd").toLowerCase();
+    const range = user.ranges.find((r) => r.day === dayOfWeek);
+
+    if (!range) return false;
+
+    const { fromTime, toTime } = range;
+
+    if (
+      (fromTime && parseTime(time) < parseTime(fromTime)) ||
+      (toTime && parseTime(time) > parseTime(toTime)) ||
+      moment(`${date} ${time}`, "L LT") < moment().add(2, "hour")
+    )
+      return false;
 
     return true;
   });
 
-  qualifiedSpots.sort((s1, s2) => {
-    const l1 = SPOT_TO_ADDRESS_LOCATION_PAIR[s1[0]][1];
-    const l2 = SPOT_TO_ADDRESS_LOCATION_PAIR[s2[0]][1];
+  qualifiedReservations.sort((s1, s2) => {
+    const l1 = SPOTS[s1.name].location;
+    const l2 = SPOTS[s2.name].location;
     return geodistance(homeLocation, l1) - geodistance(homeLocation, l2);
   });
 
-  if (qualifiedSpots.length > 0) {
-    await sendTextMessage(
-      qualifiedSpots[0],
-      date,
-      user.firstName,
-      user.phoneNumber
-    );
-  }
-};
-
-export const main = async () => {
-  dotenv.config();
-
-  const users = await User.all();
-
-  users.forEach(async (u) => {
-    if (u.firstName != "Zack") return;
-
-    await scrapeForUser(u);
-  });
+  return qualifiedReservations.length > 0 ? qualifiedReservations[0] : null;
 };
 
 export const scrapeSpotery = async (_message, _context) => {
-  // const args = JSON.parse(Buffer.from(message.data, "base64").toString());
-  console.log("function start");
+  dotenv.config();
 
-  function run() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await main();
-      } catch (e) {
-        return reject(e);
+  const [reservations, users] = await Promise.all([
+    availableReservations(),
+    User.all(),
+  ]);
+
+  await Promise.all(
+    users.map(async (user) => {
+      const reservation = await reservationForUser(reservations, user);
+
+      if (reservation) {
+        const { name, date, time } = reservation;
+
+        const message = `Hey ${
+          user.firstName
+        }, Kreg here! Want to book ${name} on ${formattedDate(
+          date
+        )} at ${formattedTime(time)}? If so, head to: ${bookingUrl(
+          name,
+          date
+        )}`;
+
+        await sendTextMessage(user.phoneNumber, message);
       }
-    });
-  }
-
-  run()
-    .then(() => {
-      console.log("Successfully ran main.");
     })
-    .catch(() => {
-      console.log("Failure running main: ", e);
-    });
+  );
 };
