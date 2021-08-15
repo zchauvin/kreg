@@ -9,3 +9,8 @@
 import { scrapeSpotery } from "../index.js";
 
 await scrapeSpotery();
+
+// import _ from "lodash"
+// import { EXAMPLE_SPOTS } from "../constants.js"
+
+// console.log(_.groupBy(EXAMPLE_SPOTS, 'title'))
