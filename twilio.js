@@ -12,7 +12,7 @@ export const handleSMS = async (req, res) => {
 
     await reservation.update({ status: "booked" });
 
-    message = "Thanks for confirming you booking!";
+    message = "Thanks for confirming your booking!";
   } else {
     message = "Sorry, I don't understand your reply.";
   }
