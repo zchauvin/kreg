@@ -1,11 +1,14 @@
 import { scrapeSpots, bookingUrl } from "./spotery.js";
 import { geocode, geodistance, sendTextMessage } from "./utils.js";
-import { SPOTS, EXAMPLE_SPOTS } from "./constants.js";
+import { SPOTS, EXAMPLE_SPOTS, TIMEZONE } from "./constants.js";
 import Distance from "geo-distance";
 import _ from "lodash";
-import moment from "moment";
+import moment from "moment-timezone";
 import dotenv from "dotenv";
 import User from "./models/User.js";
+import Reservation from "./models/Reservation.js";
+
+export { handleSMS } from "./twilio.js";
 
 const ADVANCE_BOOKING_DAYS = 7;
 
@@ -14,7 +17,11 @@ const parseTime = (time) => moment(time, "LT");
 const formattedDate = (date) => moment(date, "L").format("ddd, MMM D");
 const formattedTime = (time) => moment(time, "LT").format("h:mm a");
 
-const availableReservations = async () => {
+const availableReservations = async (mockData = false) => {
+  if (mockData) {
+    return EXAMPLE_SPOTS;
+  }
+
   let reservations = await Promise.all(
     [...Array(ADVANCE_BOOKING_DAYS).keys()].map(
       async (dayDelta) =>
@@ -59,11 +66,21 @@ const reservationForUser = async (reservations, user) => {
   return qualifiedReservations.length > 0 ? qualifiedReservations[0] : null;
 };
 
+const message = (user, reservation) =>
+  `Hey ${user.firstName}, Kreg here! Want to book ${
+    reservation.name
+  } on ${formattedDate(reservation.date)} at ${formattedTime(
+    reservation.time
+  )}? If so, book at ${bookingUrl(
+    reservation.name,
+    reservation.date
+  )} and reply "Y"`;
+
 export const scrapeSpotery = async (_message, _context) => {
   dotenv.config();
 
   const [reservations, users] = await Promise.all([
-    availableReservations(),
+    availableReservations(true),
     User.all(),
   ]);
 
@@ -72,18 +89,18 @@ export const scrapeSpotery = async (_message, _context) => {
       const reservation = await reservationForUser(reservations, user);
 
       if (reservation) {
-        const { name, date, time } = reservation;
+        const r = new Reservation({
+          user: User.ref(user.id),
+          spotId: SPOTS[reservation.name].id,
+          timestamp: moment.tz(
+            `${reservation.date} ${reservation.time}`,
+            "L LT",
+            TIMEZONE
+          ),
+        });
+        r.save();
 
-        const message = `Hey ${
-          user.firstName
-        }, Kreg here! Want to book ${name} on ${formattedDate(
-          date
-        )} at ${formattedTime(time)}? If so, head to: ${bookingUrl(
-          name,
-          date
-        )}`;
-
-        await sendTextMessage(user.phoneNumber, message);
+        await sendTextMessage(user.phoneNumber, message(user, reservation));
       }
     })
   );
