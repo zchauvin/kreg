@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-// import { scrapeSpotery } from "../index.js";
+import { scrapeSpotery } from "../index.js";
+// import moment from "moment";
 
-// await scrapeSpotery();
+await scrapeSpotery();
 
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 // import Reservation from "../models/Reservation.js";
-import User from "../models/User.js";
+// import User from "../models/User.js";
 
-dotenv.config();
+// dotenv.config();
 
-(async () => {
-  const user = await User.find("Y3wLaPUBZpSOTVPcS0Yt");
-  const reservation = await user.mostRecentReservation();
+// (async () => {
+//   const user = await User.find("Y3wLaPUBZpSOTVPcS0Yt");
+//   const reservations = await user.reservations("booked");
 
-  await reservation.update({ status: "booked" });
-})();
+//   console.log(moment(reservations[0].timestamp.toDate()));
+// })();

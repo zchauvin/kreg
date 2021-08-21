@@ -1,6 +1,11 @@
 import { scrapeSpots, bookingUrl } from "./spotery.js";
 import { geocode, geodistance, sendTextMessage } from "./utils.js";
-import { SPOTS, EXAMPLE_SPOTS, TIMEZONE } from "./constants.js";
+import {
+  SPOTS,
+  EXAMPLE_SPOTS,
+  TIMEZONE,
+  RECENT_RESERVATION_THRESHOLD_DAYS,
+} from "./constants.js";
 import Distance from "geo-distance";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -32,30 +37,52 @@ const availableReservations = async (mockData = false) => {
   return _.flatten(reservations);
 };
 
+const asyncFilter = async (arr, predicate) => {
+  const results = await Promise.all(arr.map(predicate));
+
+  return arr.filter((_v, index) => results[index]);
+};
+
 const reservationForUser = async (reservations, user) => {
   const homeLocation = await geocode(user.address);
 
-  const qualifiedReservations = reservations.filter(({ name, date, time }) => {
-    const { location } = SPOTS[name];
+  const qualifiedReservations = await asyncFilter(
+    reservations,
+    async ({ name, date, time }) => {
+      const { location } = SPOTS[name];
 
-    if (geodistance(homeLocation, location) > Distance("2 miles")) return false;
+      if (geodistance(homeLocation, location) > Distance("2 miles"))
+        return false;
 
-    const dayOfWeek = moment(date, "L").format("ddd").toLowerCase();
-    const range = user.ranges.find((r) => r.day === dayOfWeek);
+      const dayOfWeek = moment(date, "L").format("ddd").toLowerCase();
+      const range = user.ranges.find((r) => r.day === dayOfWeek);
 
-    if (!range) return false;
+      if (!range) return false;
 
-    const { fromTime, toTime } = range;
+      const { fromTime, toTime } = range;
 
-    if (
-      (fromTime && parseTime(time) < parseTime(fromTime)) ||
-      (toTime && parseTime(time) > parseTime(toTime)) ||
-      moment(`${date} ${time}`, "L LT") < moment().add(2, "hour")
-    )
-      return false;
+      const timestamp = moment(`${date} ${time}`, "L LT", TIMEZONE);
 
-    return true;
-  });
+      if (
+        (fromTime && parseTime(time) < parseTime(fromTime)) ||
+        (toTime && parseTime(time) > parseTime(toTime)) ||
+        timestamp < moment().add(2, "hour")
+      )
+        return false;
+
+      const reservations = await user.reservations("booked");
+
+      const conflictingReservationExists = reservations.some(
+        (reservation) =>
+          moment(reservation.timestamp) >
+            timestamp.subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days") &&
+          moment(reservation.timestamp) <
+            timestamp.add(RECENT_RESERVATION_THRESHOLD_DAYS, "days")
+      );
+
+      return !conflictingReservationExists;
+    }
+  );
 
   qualifiedReservations.sort((s1, s2) => {
     const l1 = SPOTS[s1.name].location;
@@ -86,6 +113,8 @@ export const scrapeSpotery = async (_message, _context) => {
 
   await Promise.all(
     users.map(async (user) => {
+      if (user.firstName == "Mary") return;
+
       const reservation = await reservationForUser(reservations, user);
 
       if (reservation) {
@@ -98,7 +127,7 @@ export const scrapeSpotery = async (_message, _context) => {
             TIMEZONE
           ),
         });
-        r.save();
+        // r.save();
 
         await sendTextMessage(user.phoneNumber, message(user, reservation));
       }

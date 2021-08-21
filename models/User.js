@@ -1,10 +1,10 @@
 import Record from "./Record.js";
 import Reservation from "./Reservation.js";
 import moment from "moment";
+import { RECENT_RESERVATION_THRESHOLD_DAYS } from "../constants.js";
 
 export default class User extends Record {
   static COLLECTION = "users";
-  static RECENT_RESERVATION_THRESHOLD_DAYS = 3;
 
   static async findByPhoneNumber(phoneNumber) {
     const snapshot = await this.collection()
@@ -14,19 +14,21 @@ export default class User extends Record {
     return this.fromSnapshotSingle(snapshot);
   }
 
-  async reservations() {
-    const snapshot = await Reservation.collection()
+  async reservations(status = null) {
+    let query = Reservation.collection()
       .where("user", "==", this.constructor.ref(this.id))
       .where(
         "timestamp",
         ">=",
-        moment().subtract(
-          this.constructor.RECENT_RESERVATION_THRESHOLD_DAYS,
-          "days"
-        )
+        moment().subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days")
       )
-      .orderBy("timestamp", "desc")
-      .get();
+      .orderBy("timestamp", "desc");
+
+    if (status !== null) {
+      query = query.where("status", "==", status);
+    }
+
+    const snapshot = await query.get();
 
     return Reservation.fromSnapshot(snapshot);
   }

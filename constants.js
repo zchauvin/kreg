@@ -365,3 +365,5 @@ export const EXAMPLE_SPOTS = [
 ];
 
 export const TIMEZONE = "America/Los_Angeles";
+
+export const RECENT_RESERVATION_THRESHOLD_DAYS = 3;
