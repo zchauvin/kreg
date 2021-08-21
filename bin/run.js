@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 
-// import dotenv from "dotenv";
+// import { scrapeSpotery } from "../index.js";
 
-// dotenv.config();
+// await scrapeSpotery();
 
-// "Usage: node index.js <date(MM/DD/YYYY)> <address> <fromTime?(H:MM AM)> <toTime?(H:MM AM)>"
+import dotenv from "dotenv";
+// import Reservation from "../models/Reservation.js";
+import User from "../models/User.js";
 
-import { scrapeSpotery } from "../index.js";
+dotenv.config();
 
-await scrapeSpotery();
+(async () => {
+  const user = await User.find("Y3wLaPUBZpSOTVPcS0Yt");
+  const reservation = await user.mostRecentReservation();
 
-// import _ from "lodash"
-// import { EXAMPLE_SPOTS } from "../constants.js"
-
-// console.log(_.groupBy(EXAMPLE_SPOTS, 'title'))
+  await reservation.update({ status: "booked" });
+})();
