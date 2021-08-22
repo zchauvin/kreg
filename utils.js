@@ -6,7 +6,7 @@ import twilio from "twilio";
 
 export const geocode = async (address) => {
   const res = await fetch(
-    BASE_URL + `?key=${process.env.API_KEY}&address=${encodeURIComponent(address)}`
+    BASE_URL + `?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${encodeURIComponent(address)}`
   );
   const json = await res.json();
   if (!json.results) return null;
