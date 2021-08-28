@@ -51,7 +51,10 @@ const reservationForUser = async (reservations, user) => {
     async ({ name, date, time }) => {
       const { location } = SPOTS[name];
 
-      if (geodistance(homeLocation, location) > Distance("2 miles"))
+      if (
+        geodistance(homeLocation, location) >
+        Distance(`${user.getDistanceFilterMiles()} miles`)
+      )
         return false;
 
       const dayOfWeek = moment(date, "L").format("ddd").toLowerCase();
