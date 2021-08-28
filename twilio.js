@@ -4,10 +4,14 @@ import User from "./models/User.js";
 const { MessagingResponse } = twilio.twiml;
 
 export const handleSMS = async (req, res) => {
-  let message;
+  const phoneNumber = req.body.From;
+  const requestBody = req.body.Body.trim().toLowerCase();
 
-  if (req.body.Body.trim().toLowerCase() === "y") {
-    const user = await User.findByPhoneNumber(req.body.From);
+  console.log(`${phoneNumber}: ${requestBody}`);
+
+  let message;
+  if (requestBody === "y") {
+    const user = await User.findByPhoneNumber();
     const reservation = await user.mostRecentReservation();
 
     await reservation.update({ status: "booked" });

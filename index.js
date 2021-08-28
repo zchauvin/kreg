@@ -72,13 +72,18 @@ const reservationForUser = async (reservations, user) => {
 
       const reservations = await user.reservations("booked");
 
-      const conflictingReservationExists = reservations.some(
-        (reservation) =>
-          moment(reservation.timestamp) >
-            timestamp.subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days") &&
-          moment(reservation.timestamp) <
+      const conflictingReservationExists = reservations.some((reservation) => {
+        const reservationTimestamp = moment(reservation.timestamp.toMillis());
+
+        return (
+          reservationTimestamp >
+            timestamp
+              .clone()
+              .subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days") &&
+          reservationTimestamp <
             timestamp.add(RECENT_RESERVATION_THRESHOLD_DAYS, "days")
-      );
+        );
+      });
 
       return !conflictingReservationExists;
     }
@@ -107,12 +112,14 @@ export const scrapeSpotery = async (_message, _context) => {
   dotenv.config();
 
   const [reservations, users] = await Promise.all([
-    availableReservations(),
+    availableReservations(true),
     User.all(),
   ]);
 
   await Promise.all(
     users.map(async (user) => {
+      if (user.firstName == "Zack") return;
+
       const reservation = await reservationForUser(reservations, user);
 
       if (reservation) {

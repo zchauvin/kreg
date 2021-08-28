@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { scrapeSpotery } from "../index.js";
-// import moment from "moment";
 
 await scrapeSpotery();
 
@@ -12,8 +11,9 @@ await scrapeSpotery();
 // dotenv.config();
 
 // (async () => {
-//   const user = await User.find("Y3wLaPUBZpSOTVPcS0Yt");
+//   const user = await User.find("lOIdYpZCW1tpA3hHiAfj");
 //   const reservations = await user.reservations("booked");
+//   console.log(reservations);
 
-//   console.log(moment(reservations[0].timestamp.toDate()));
+// console.log(moment(reservations[0].timestamp.toDate()));
 // })();
