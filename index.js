@@ -115,14 +115,12 @@ export const scrapeSpotery = async (_message, _context) => {
   dotenv.config();
 
   const [reservations, users] = await Promise.all([
-    availableReservations(true),
+    availableReservations(),
     User.all(),
   ]);
 
   await Promise.all(
     users.map(async (user) => {
-      if (user.firstName == "Zack") return;
-
       const reservation = await reservationForUser(reservations, user);
 
       if (reservation) {
