@@ -11,7 +11,7 @@ export const handleSMS = async (req, res) => {
 
   let message;
   if (requestBody === "y") {
-    const user = await User.findByPhoneNumber();
+    const user = await User.findByPhoneNumber(phoneNumber);
     const reservation = await user.mostRecentReservation();
 
     await reservation.update({ status: "booked" });
