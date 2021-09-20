@@ -5,6 +5,7 @@ import { RECENT_RESERVATION_THRESHOLD_DAYS } from "../constants.js";
 
 export default class User extends Record {
   static COLLECTION = "users";
+  static DEFAULT_DISTANCE_FILTER_MILES = 2;
 
   static async findByPhoneNumber(phoneNumber) {
     const snapshot = await this.collection()
@@ -36,5 +37,11 @@ export default class User extends Record {
   async mostRecentReservation() {
     const reservations = await this.reservations();
     return reservations.length > 0 ? reservations[0] : null;
+  }
+
+  getDistanceFilterMiles() {
+    return (
+      this.distanceFilterMiles || this.constructor.DEFAULT_DISTANCE_FILTER_MILES
+    );
   }
 }

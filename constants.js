@@ -353,8 +353,8 @@ export const SPOTS = {
 
 export const EXAMPLE_SPOTS = [
   {
-    name: "Alice Marble Tennis Court #4 ONE HOUR SLOTS",
-    date: "08/17/2021",
+    name: "Presidio Wall Playground Tennis Court #4",
+    date: "09/07/2021",
     time: "07:30 AM",
   },
   {

@@ -51,7 +51,10 @@ const reservationForUser = async (reservations, user) => {
     async ({ name, date, time }) => {
       const { location } = SPOTS[name];
 
-      if (geodistance(homeLocation, location) > Distance("2 miles"))
+      if (
+        geodistance(homeLocation, location) >
+        Distance(`${user.getDistanceFilterMiles()} miles`)
+      )
         return false;
 
       const dayOfWeek = moment(date, "L").format("ddd").toLowerCase();
@@ -72,13 +75,18 @@ const reservationForUser = async (reservations, user) => {
 
       const reservations = await user.reservations("booked");
 
-      const conflictingReservationExists = reservations.some(
-        (reservation) =>
-          moment(reservation.timestamp) >
-            timestamp.subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days") &&
-          moment(reservation.timestamp) <
+      const conflictingReservationExists = reservations.some((reservation) => {
+        const reservationTimestamp = moment(reservation.timestamp.toMillis());
+
+        return (
+          reservationTimestamp >
+            timestamp
+              .clone()
+              .subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days") &&
+          reservationTimestamp <
             timestamp.add(RECENT_RESERVATION_THRESHOLD_DAYS, "days")
-      );
+        );
+      });
 
       return !conflictingReservationExists;
     }

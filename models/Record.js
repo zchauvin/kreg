@@ -50,6 +50,8 @@ export default class Record {
   }
 
   save() {
+    if (process.env.NODE_ENV === "development") return;
+
     this.constructor
       .collection()
       .doc()
