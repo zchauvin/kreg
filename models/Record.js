@@ -59,6 +59,6 @@ export default class Record {
   }
 
   async update(attributes) {
-    await this.constructor.ref(this.id).update(attributes);
+    return await this.constructor.ref(this.id).update(attributes);
   }
 }
