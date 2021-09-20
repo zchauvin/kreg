@@ -22,8 +22,8 @@ const parseTime = (time) => moment(time, "LT");
 const formattedDate = (date) => moment(date, "L").format("ddd, MMM D");
 const formattedTime = (time) => moment(time, "LT").format("h:mm a");
 
-const availableReservations = async (mockData = false) => {
-  if (mockData) {
+const availableReservations = async () => {
+  if (process.env.USE_MOCK_DATA == "true") {
     return EXAMPLE_SPOTS;
   }
 
@@ -133,7 +133,7 @@ export const scrapeSpotery = async (_message, _context) => {
             TIMEZONE
           ),
         });
-        r.save();
+        await r.save();
 
         await sendTextMessage(user.phoneNumber, message(user, reservation));
       }
