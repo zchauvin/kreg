@@ -1,4 +1,5 @@
 import firestore from "../firestore.js";
+import moment from "moment";
 
 export default class Record {
   constructor(attributes) {
@@ -49,13 +50,13 @@ export default class Record {
       : null;
   }
 
-  save() {
+  async save() {
     if (process.env.NODE_ENV === "development") return;
 
-    this.constructor
-      .collection()
-      .doc()
-      .set(Object.fromEntries(Object.entries(this)));
+    const obj = Object.fromEntries(Object.entries(this));
+    obj.createdAt = moment();
+
+    return await this.constructor.collection().doc().set(obj);
   }
 
   async update(attributes) {

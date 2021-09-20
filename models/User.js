@@ -1,7 +1,6 @@
 import Record from "./Record.js";
 import Reservation from "./Reservation.js";
 import moment from "moment";
-import { RECENT_RESERVATION_THRESHOLD_DAYS } from "../constants.js";
 
 export default class User extends Record {
   static COLLECTION = "users";
@@ -18,12 +17,7 @@ export default class User extends Record {
   async reservations(status = null) {
     let query = Reservation.collection()
       .where("user", "==", this.constructor.ref(this.id))
-      .where(
-        "timestamp",
-        ">=",
-        moment().subtract(RECENT_RESERVATION_THRESHOLD_DAYS, "days")
-      )
-      .orderBy("timestamp", "desc");
+      .orderBy("createdAt", "desc");
 
     if (status !== null) {
       query = query.where("status", "==", status);
