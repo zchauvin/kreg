@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import cheerio from "cheerio";
 import _ from "lodash";
-import { SPOTS } from './constants.js'
+import { SPOTS } from "./constants.js";
 
 const MAX_SPOTS_PER_PAGE = 24;
 const MAX_TIMES_PER_SPOT = 14;
@@ -69,6 +69,7 @@ const scrapeSpots = async (date, headless = true) => {
   return _.flatten(results);
 };
 
-const bookingUrl = (name, date) => `https://www.spotery.com/spot/${SPOTS[name].id}?psReservationDateStr=${date}`
+const bookingUrl = (name, date) =>
+  `https://www.spotery.com/spot/${SPOTS[name].id}?psReservationDateStr=${date}`;
 
 export { scrapeSpots, bookingUrl };
