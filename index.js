@@ -136,6 +136,8 @@ export const scrapeSpotery = async (_message, _context) => {
         await r.save();
 
         await sendTextMessage(user.phoneNumber, message(user, reservation));
+      } else {
+        console.log(`No available reservations for ${user.firstName}`);
       }
     })
   );
