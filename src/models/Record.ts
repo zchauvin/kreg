@@ -1,18 +1,23 @@
 import firestore from "../firestore.js";
 import moment from "moment";
+import { firestore as fs } from "firebase-admin";
 
 export default class Record {
-  constructor(attributes) {
+  id: string;
+
+  static COLLECTION: string;
+
+  constructor(attributes: { [key: string]: any }) {
     for (const key in attributes) {
-      this[key] = attributes[key];
+      (this as any)[key] = attributes[key];
     }
   }
 
-  static collection() {
+  static collection(): fs.CollectionReference {
     return firestore().collection(this.COLLECTION);
   }
 
-  static fromSnapshot(snapshot) {
+  static fromSnapshot(snapshot: fs.QuerySnapshot): Record[] {
     if (snapshot.empty) return [];
 
     return snapshot.docs.map(
@@ -24,7 +29,7 @@ export default class Record {
     );
   }
 
-  static fromSnapshotSingle(snapshot) {
+  static fromSnapshotSingle(snapshot: fs.QuerySnapshot): Record | null {
     const records = this.fromSnapshot(snapshot);
     return records.length > 0 ? records[0] : null;
   }
@@ -35,11 +40,11 @@ export default class Record {
     return this.fromSnapshot(snapshot);
   }
 
-  static ref(id) {
+  static ref(id: string) {
     return this.collection().doc(id);
   }
 
-  static async find(id) {
+  static async find(id: string) {
     const doc = await this.ref(id).get();
 
     return doc.exists
@@ -56,10 +61,10 @@ export default class Record {
     const obj = Object.fromEntries(Object.entries(this));
     obj.createdAt = moment();
 
-    return await this.constructor.collection().doc().set(obj);
+    return await Record.collection().doc().set(obj);
   }
 
-  async update(attributes) {
-    return await this.constructor.ref(this.id).update(attributes);
+  async update(attributes: { [k: string]: any }) {
+    return await Record.ref(this.id).update(attributes);
   }
 }

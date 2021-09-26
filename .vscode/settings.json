@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "dst/**/*": true,
+    "coverage-ts/**/*": true
+  }
+}

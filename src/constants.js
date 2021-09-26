@@ -353,8 +353,8 @@ export const SPOTS = {
 
 export const EXAMPLE_SPOTS = [
   {
-    name: "Lafayette Tennis Court #1 ONE HOUR SLOTS",
-    date: "09/20/2021",
+    name: "Presidio Wall Playground Tennis Court #1",
+    date: "09/27/2021",
     time: "07:30 AM",
   },
   {
