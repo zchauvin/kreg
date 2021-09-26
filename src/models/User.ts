@@ -1,22 +1,23 @@
 import Record from "./Record.js";
 import Reservation from "./Reservation.js";
-import moment from "moment";
 
 export default class User extends Record {
+  distanceFilterMiles?: number;
+
   static COLLECTION = "users";
   static DEFAULT_DISTANCE_FILTER_MILES = 2;
 
-  static async findByPhoneNumber(phoneNumber) {
+  static async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
     const snapshot = await this.collection()
       .where("phoneNumber", "==", phoneNumber)
       .get();
 
-    return this.fromSnapshotSingle(snapshot);
+    return this.fromSnapshotSingle(snapshot) as User;
   }
 
   async reservations(status = null) {
     let query = Reservation.collection()
-      .where("user", "==", this.constructor.ref(this.id))
+      .where("user", "==", User.ref(this.id))
       .orderBy("createdAt", "desc");
 
     if (status !== null) {
@@ -28,14 +29,12 @@ export default class User extends Record {
     return Reservation.fromSnapshot(snapshot);
   }
 
-  async mostRecentReservation() {
+  async mostRecentReservation(): Promise<Reservation | null> {
     const reservations = await this.reservations();
     return reservations.length > 0 ? reservations[0] : null;
   }
 
-  getDistanceFilterMiles() {
-    return (
-      this.distanceFilterMiles || this.constructor.DEFAULT_DISTANCE_FILTER_MILES
-    );
+  getDistanceFilterMiles(): number {
+    return this.distanceFilterMiles || User.DEFAULT_DISTANCE_FILTER_MILES;
   }
 }
