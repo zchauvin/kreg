@@ -9,9 +9,9 @@ import {
 import Distance from "geo-distance";
 import _ from "lodash";
 import moment from "moment-timezone";
-import dotenv from "dotenv";
 import User from "./models/User.js";
 import Reservation from "./models/Reservation.js";
+import dotenv from "dotenv";
 
 export { handleSMS } from "./twilio.js";
 
@@ -121,6 +121,8 @@ export const scrapeSpotery = async (_message, _context) => {
 
   await Promise.all(
     users.map(async (user) => {
+      if (process.env.ONLY_ZACK == "true" && user.firstName != "Zack") return;
+
       const reservation = await reservationForUser(reservations, user);
 
       if (reservation) {

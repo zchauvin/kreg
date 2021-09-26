@@ -1,8 +1,10 @@
 import admin from "firebase-admin";
 
-let _db;
+type Firestore = admin.firestore.Firestore;
 
-export default () => {
+let _db: Firestore;
+
+export default (): Firestore => {
   if (!_db) {
     admin.initializeApp();
 

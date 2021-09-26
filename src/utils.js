@@ -1,12 +1,15 @@
 const BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 
 import fetch from "node-fetch";
-import Distance from "geo-distance";
 import twilio from "twilio";
+import Distance from "geo-distance";
 
 export const geocode = async (address) => {
   const res = await fetch(
-    BASE_URL + `?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${encodeURIComponent(address)}`
+    BASE_URL +
+      `?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${encodeURIComponent(
+        address
+      )}`
   );
   const json = await res.json();
   if (!json.results) return null;

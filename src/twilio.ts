@@ -3,16 +3,31 @@ import User from "./models/User.js";
 
 const { MessagingResponse } = twilio.twiml;
 
-export const handleSMS = async (req, res) => {
-  const phoneNumber = req.body.From;
-  const requestBody = req.body.Body.trim().toLowerCase();
+import type { HttpFunction } from "@google-cloud/functions-framework/build/src/functions";
+
+interface Request {
+  body: {
+    From: string;
+    Body: string;
+  };
+}
+
+export const handleSMS: HttpFunction = async (req: Request, res) => {
+  const { body } = req;
+  const phoneNumber = body.From;
+  const requestBody = body.Body.trim().toLowerCase();
 
   console.log(`${phoneNumber}: ${requestBody}`);
 
-  let message;
+  let message: string;
   if (requestBody === "y") {
     const user = await User.findByPhoneNumber(phoneNumber);
+
+    if (!user) return;
+
     const reservation = await user.mostRecentReservation();
+
+    if (!reservation) return;
 
     await reservation.update({ status: "booked" });
 
