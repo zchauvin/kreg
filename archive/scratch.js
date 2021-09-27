@@ -24,3 +24,19 @@ const moment = require("moment")(async () => {
 // --message "{\"date\": \"08/15/2021\", \"address\": \"48 San Jose Avenue San Francisco, CA 94110\"}"
 
 // curl -X POST "https://us-central1-kreg-314404.cloudfunctions.net/handleSMS" -H "Content-Type:application/json" --data '{"name":"Keyboard Cat"}'
+
+// export const listToString = (elements) => {
+//   if (elements.length < 2) return elements[0];
+
+//   let transformedElements = elements;
+
+//   if (elements.length > 2) {
+//     transformedElements = elements.map(
+//       (e, i) => e + (i < elements.length - 1 ? "," : "")
+//     );
+//   }
+
+//   transformedElements.splice(elements.length - 1, 0, "or");
+
+//   return transformedElements.join(" ");
+// };
