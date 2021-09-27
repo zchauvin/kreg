@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "deploy": "gcloud functions deploy $npm_package_config_function_name"
+    "deploy": "gcloud functions deploy $npm_package_config_function_name",
+    "coverage": "typescript-coverage-report"
   },
   "author": "",
   "license": "MIT",
@@ -17,13 +18,16 @@
     "cheerio": "^1.0.0-rc.9",
     "dotenv": "^10.0.0",
     "firebase-admin": "^9.11.0",
-    "geo-distance": "^0.2.0",
+    "haversine": "^1.1.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.0.0",
     "puppeteer": "^9.1.1",
     "twilio": "^3.66.1",
     "typescript": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/haversine": "^1.1.5"
   }
 }

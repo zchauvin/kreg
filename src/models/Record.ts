@@ -2,6 +2,11 @@ import firestore from "../firestore.js";
 import moment from "moment";
 import { firestore as fs } from "firebase-admin";
 
+interface NewRecord {
+  [k: string]: any;
+  createdAt: moment.Moment;
+}
+
 export default class Record {
   id: string;
 
@@ -58,7 +63,7 @@ export default class Record {
   async save() {
     if (process.env.NODE_ENV === "development") return;
 
-    const obj = Object.fromEntries(Object.entries(this));
+    const obj = Object.fromEntries(Object.entries(this)) as NewRecord;
     obj.createdAt = moment();
 
     return await Record.collection().doc().set(obj);
