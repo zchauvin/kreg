@@ -7,4 +7,7 @@ auth:
 deploy:
 	gcloud functions deploy $(FUNCTION)
 
+vr:
+	open /Users/zchauvin/kreg/coverage-ts/index.html
+
 .PHONY: auth deploy
