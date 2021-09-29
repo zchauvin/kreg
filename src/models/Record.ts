@@ -66,7 +66,10 @@ export default class Record {
     const obj = Object.fromEntries(Object.entries(this)) as NewRecord;
     obj.createdAt = moment();
 
-    return await Record.collection().doc().set(obj);
+    return await (this.constructor as typeof Record)
+      .collection()
+      .doc()
+      .set(obj);
   }
 
   async update(attributes: { [k: string]: any }) {
