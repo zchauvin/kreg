@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// const main = require("../dst/index.js");
+const utils = require("../dst/utils.js");
+require("dotenv").config();
 
-const haversine = require("haversine");
+// const haversine = require("haversine");
 
-// (async () => {
-//   await main.scrapeSpotery();
-// })();
+(async () => {
+  console.log(await utils.geocode("577 Howard St, San Francisco, CA 94105"));
+})();
 
-// import dotenv from "dotenv";
 // import User from "../models/User.js";
 
 // dotenv.config();
