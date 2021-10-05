@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-const utils = require("../dst/utils.js");
+const Reservation = require("../dst/models/Reservation.js");
 require("dotenv").config();
 
 // const haversine = require("haversine");
 
 (async () => {
-  console.log(await utils.geocode("577 Howard St, San Francisco, CA 94105"));
+  const reservation = await Reservation.default.find("3RPwBU7inxRkPLncwyMt");
+  await reservation.update({ status: "booked" });
 })();
 
 // import User from "../models/User.js";
