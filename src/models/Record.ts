@@ -22,7 +22,7 @@ export default class Record {
     return firestore().collection(this.COLLECTION);
   }
 
-  static fromSnapshot(snapshot: fs.QuerySnapshot): Record[] {
+  static fromSnapshot<T extends Record>(snapshot: fs.QuerySnapshot): T[] {
     if (snapshot.empty) return [];
 
     return snapshot.docs.map(
@@ -30,12 +30,14 @@ export default class Record {
         new this({
           id: doc.id,
           ...doc.data(),
-        })
+        }) as T
     );
   }
 
-  static fromSnapshotSingle(snapshot: fs.QuerySnapshot): Record | null {
-    const records = this.fromSnapshot(snapshot);
+  static fromSnapshotSingle<T extends Record>(
+    snapshot: fs.QuerySnapshot
+  ): T | null {
+    const records = this.fromSnapshot<T>(snapshot);
     return records.length > 0 ? records[0] : null;
   }
 
