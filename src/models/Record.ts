@@ -73,6 +73,8 @@ export default class Record {
   }
 
   async update(attributes: { [k: string]: any }) {
-    return await Record.ref(this.id).update(attributes);
+    return await (this.constructor as typeof Record)
+      .ref(this.id)
+      .update(attributes);
   }
 }
