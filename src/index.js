@@ -112,7 +112,7 @@ export const scrapeSpotery = async (_message, _context) => {
 
   const [reservations, users] = await Promise.all([
     availableReservations(),
-    User.all(),
+    User.active(),
   ]);
 
   await Promise.all(

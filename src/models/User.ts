@@ -12,7 +12,15 @@ export default class User extends Record {
       .where("phoneNumber", "==", phoneNumber)
       .get();
 
-    return this.fromSnapshotSingle(snapshot) as User;
+    return this.fromSnapshotSingle<User>(snapshot);
+  }
+
+  static async active(): Promise<User[]> {
+    const snapshot = await this.collection()
+      .where("status", "==", "active")
+      .get();
+
+    return this.fromSnapshot<User>(snapshot);
   }
 
   async reservations(status = null) {
