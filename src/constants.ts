@@ -1,3 +1,6 @@
+import moment from "moment-timezone";
+import { ReservationInfo } from "./spotery";
+
 export const TWO_DAY_IN_ADVANCE_SPOTS = [
   "Alice Marble Tennis Court #4 ONE HOUR SLOTS",
   "Balboa Park Tennis Court #4 ONE HOUR SLOTS",
@@ -351,7 +354,9 @@ export const SPOTS = {
   },
 };
 
-export const EXAMPLE_SPOTS = [
+export type SpotName = keyof typeof SPOTS;
+
+export const EXAMPLE_SPOTS: ReservationInfo[] = [
   {
     name: "Presidio Wall Playground Tennis Court #1",
     date: "09/27/2021",

@@ -1,8 +1,18 @@
 import Record from "./Record.js";
-import Reservation from "./Reservation.js";
+import Reservation, { Status } from "./Reservation.js";
+
+interface Range {
+  day: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+  fromTime?: string;
+  toTime?: string;
+}
 
 export default class User extends Record {
   distanceFilterMiles?: number;
+  address: string;
+  ranges: Range[];
+  firstName: string;
+  phoneNumber: string;
 
   static COLLECTION = "users";
   static DEFAULT_DISTANCE_FILTER_MILES = 2;
@@ -23,7 +33,7 @@ export default class User extends Record {
     return this.fromSnapshot<User>(snapshot);
   }
 
-  async reservations(status = null) {
+  async reservations(status: Status | null = null) {
     let query = Reservation.collection()
       .where("user", "==", User.ref(this.id))
       .orderBy("createdAt", "desc");
@@ -34,7 +44,7 @@ export default class User extends Record {
 
     const snapshot = await query.get();
 
-    return Reservation.fromSnapshot(snapshot);
+    return Reservation.fromSnapshot<Reservation>(snapshot);
   }
 
   async mostRecentReservation(): Promise<Reservation | null> {
