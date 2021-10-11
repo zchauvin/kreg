@@ -1,4 +1,4 @@
-import { scrapeSpots, bookingUrl } from "./spotery.js";
+import { scrapeSpots, bookingUrl, ReservationInfo } from "./spotery.js";
 import { geocode, geodistance, sendTextMessage } from "./utils.js";
 import {
   SPOTS,
@@ -11,17 +11,18 @@ import moment from "moment-timezone";
 import User from "./models/User.js";
 import Reservation from "./models/Reservation.js";
 import dotenv from "dotenv";
+import type { HttpFunction } from "@google-cloud/functions-framework/build/src/functions";
 
 export { handleSMS } from "./twilio.js";
 
 const ADVANCE_BOOKING_DAYS = 7;
 
-const parseTime = (time) => moment(time, "LT");
+const parseTime = (time: string) => moment(time, "LT");
 
-const formattedDate = (date) => moment(date, "L").format("ddd, MMM D");
-const formattedTime = (time) => moment(time, "LT").format("h:mm a");
+const formattedDate = (date: string) => moment(date, "L").format("ddd, MMM D");
+const formattedTime = (time: string) => moment(time, "LT").format("h:mm a");
 
-const availableReservations = async () => {
+const availableReservations = async (): Promise<ReservationInfo[]> => {
   if (process.env.USE_MOCK_DATA == "true") {
     return EXAMPLE_SPOTS;
   }
@@ -36,14 +37,22 @@ const availableReservations = async () => {
   return _.flatten(reservations);
 };
 
-const asyncFilter = async (arr, predicate) => {
+async function asyncFilter<T>(
+  arr: T[],
+  predicate: (elm: T) => Promise<boolean>
+) {
   const results = await Promise.all(arr.map(predicate));
 
   return arr.filter((_v, index) => results[index]);
-};
+}
 
-const reservationForUser = async (reservations, user) => {
+const reservationForUser = async (
+  reservations: ReservationInfo[],
+  user: User
+): Promise<ReservationInfo | null> => {
   const homeLocation = await geocode(user.address);
+
+  if (!homeLocation) return null;
 
   const qualifiedReservations = await asyncFilter(
     reservations,
@@ -97,7 +106,7 @@ const reservationForUser = async (reservations, user) => {
   return qualifiedReservations.length > 0 ? qualifiedReservations[0] : null;
 };
 
-const message = (user, reservation) =>
+const message = (user: User, reservation: ReservationInfo) =>
   `Hey ${user.firstName}, Kreg here! Want to book ${
     reservation.name
   } on ${formattedDate(reservation.date)} at ${formattedTime(
@@ -107,7 +116,7 @@ const message = (user, reservation) =>
     reservation.date
   )} and reply "Y"`;
 
-export const scrapeSpotery = async (_message, _context) => {
+export const scrapeSpotery: HttpFunction = async (_message, _context) => {
   dotenv.config();
 
   const [reservations, users] = await Promise.all([
