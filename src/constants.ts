@@ -1,4 +1,3 @@
-import moment from "moment-timezone";
 import { ReservationInfo } from "./spotery";
 
 export const TWO_DAY_IN_ADVANCE_SPOTS = [
@@ -358,14 +357,9 @@ export type SpotName = keyof typeof SPOTS;
 
 export const EXAMPLE_SPOTS: ReservationInfo[] = [
   {
-    name: "Presidio Wall Playground Tennis Court #1",
-    date: "09/27/2021",
-    time: "07:30 AM",
-  },
-  {
-    name: "Dolores Park Tennis Court #1",
-    date: "08/22/2021",
-    time: "01:00 PM",
+    name: "Dolores Tennis Park Court #3 ONE HOUR SLOTS",
+    date: "10/11/2021",
+    time: "05:00 PM",
   },
 ];
 
