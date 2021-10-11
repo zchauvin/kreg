@@ -10,4 +10,4 @@ deploy:
 vr:
 	open /Users/zchauvin/kreg/coverage-ts/index.html
 
-.PHONY: auth deploy
+.PHONY: auth deploy vr

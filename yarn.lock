@@ -288,6 +288,11 @@
   resolved "https://registry.yarnpkg.com/@types/haversine/-/haversine-1.1.5.tgz#b839b870b1c3325030dbe55c11b0ce20feabd6cb"
   integrity sha512-ITIhOBn4tjADEWTfiR3U0ioNRRNOlMJjornJZA/O6pTkvqV69or1Ms0reMNQw3la+wURknlRd1DW+CYUcCvq8A==
 
+"@types/lodash@^4.14.175":
+  version "4.14.175"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.175.tgz#b78dfa959192b01fae0ad90e166478769b215f45"
+  integrity sha512-XmdEOrKQ8a1Y/yxQFOMbC47G/V2VDO1GvMRnl4O75M4GW/abC5tnfzadQYkqEveqRM1dEJGFFegfPNA2vvx2iw==
+
 "@types/long@^4.0.0", "@types/long@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.1.tgz#459c65fa1867dafe6a8f322c4c51695663cc55e9"

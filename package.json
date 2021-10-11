@@ -29,6 +29,7 @@
     "typescript": "^4.4.3"
   },
   "devDependencies": {
-    "@types/haversine": "^1.1.5"
+    "@types/haversine": "^1.1.5",
+    "@types/lodash": "^4.14.175"
   }
 }
