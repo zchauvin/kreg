@@ -78,12 +78,20 @@ const reservationForUser = async (
       )
         return false;
 
-      const reservations = await user.reservations("booked");
+      const reservations = await user.reservations();
 
       const conflictingReservationExists = reservations.some((reservation) => {
         const reservationTimestamp = moment(reservation.timestamp.toMillis());
 
+        if (
+          reservationTimestamp.isSame(timestamp) &&
+          reservation.spotId == SPOTS[name].id
+        ) {
+          return true;
+        }
+
         return (
+          reservation.status == "booked" &&
           reservationTimestamp >
             timestamp
               .clone()
@@ -126,7 +134,7 @@ export const scrapeSpotery: HttpFunction = async (_message, _context) => {
 
   await Promise.all(
     users.map(async (user) => {
-      if (process.env.ONLY_ZACK == "true" && user.firstName != "Zack") return;
+      if (process.env.ONLY_KYLE == "true" && user.firstName != "Kyle") return;
 
       const reservation = await reservationForUser(reservations, user);
 
