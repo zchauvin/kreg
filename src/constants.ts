@@ -351,6 +351,11 @@ export const SPOTS = {
     address: "295 Day St San Francisco, CA",
     location: { lat: 37.7425701, lng: -122.4285267 },
   },
+  "Rossi Park Court #3": {
+    id: "447962",
+    address: "Arguello Blvd & Edward St San Francisco, CA",
+    location: { lat: 37.778327, lng: -122.458681 },
+  },
 };
 
 export type SpotName = keyof typeof SPOTS;
