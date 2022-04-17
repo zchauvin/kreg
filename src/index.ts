@@ -46,13 +46,13 @@ async function asyncFilter<T>(
   return arr.filter((_v, index) => results[index]);
 }
 
-const reservationForUser = async (
+const reservationsForUser = async (
   reservations: ReservationInfo[],
   user: User
-): Promise<ReservationInfo | null> => {
+): Promise<ReservationInfo[]> => {
   const homeLocation = await geocode(user.address);
 
-  if (!homeLocation) return null;
+  if (!homeLocation) return [];
 
   const qualifiedReservations = await asyncFilter(
     reservations,
@@ -105,11 +105,18 @@ const reservationForUser = async (
     }
   );
 
-  qualifiedReservations.sort((s1, s2) => {
+  return qualifiedReservations.sort((s1, s2) => {
     const l1 = SPOTS[s1.name].location;
     const l2 = SPOTS[s2.name].location;
     return geodistance(homeLocation, l1) - geodistance(homeLocation, l2);
   });
+};
+
+const reservationForUser = async (
+  reservations: ReservationInfo[],
+  user: User
+): Promise<ReservationInfo | null> => {
+  const qualifiedReservations = await reservationsForUser(reservations, user);
 
   return qualifiedReservations.length > 0 ? qualifiedReservations[0] : null;
 };
@@ -123,6 +130,17 @@ const message = (user: User, reservation: ReservationInfo) =>
     reservation.name,
     reservation.date
   )} and reply "Y"`;
+
+export const myReservations = async (): Promise<ReservationInfo[]> => {
+  const [reservations, user] = await Promise.all([
+    availableReservations(),
+    User.findByLastName("Chauvin"),
+  ]);
+
+  if (!user) return [];
+
+  return await reservationsForUser(reservations, user);
+};
 
 export const scrapeSpotery: HttpFunction = async (_message, _context) => {
   dotenv.config();

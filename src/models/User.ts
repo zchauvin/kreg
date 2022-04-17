@@ -25,6 +25,14 @@ export default class User extends Record {
     return this.fromSnapshotSingle<User>(snapshot);
   }
 
+  static async findByLastName(lastName: string): Promise<User | null> {
+    const snapshot = await this.collection()
+      .where("lastName", "==", lastName)
+      .get();
+
+    return this.fromSnapshotSingle<User>(snapshot);
+  }
+
   static async active(): Promise<User[]> {
     const snapshot = await this.collection()
       .where("status", "==", "active")
