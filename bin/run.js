@@ -6,7 +6,8 @@ require("dotenv").config();
 // const haversine = require("haversine");
 
 (async () => {
-  await main.scrapeSpotery();
+  // await main.scrapeSpotery();
+  await main.myReservations();
 })();
 
 // import User from "../models/User.js";
